@@ -1,0 +1,48 @@
+I first had to queiry the csv file on SQl to gain further insight on the data given to me.
+
+-- 1. Sales Classification Distribution
+SELECT Sales_Classification, COUNT(*) AS Count, 
+       ROUND(COUNT(*)*100.0/(SELECT COUNT(*) FROM sales), 2) AS Percentage
+FROM sales
+GROUP BY Sales_Classification;
+
+-- 2. Top Performing Models by Sales Volume
+SELECT Model, 
+       SUM(Sales_Volume) AS Total_Sales,
+       AVG(Price_USD) AS Avg_Price,
+       COUNT(*) AS Listings
+FROM sales
+GROUP BY Model
+ORDER BY Total_Sales DESC
+LIMIT 5;
+
+-- 3. Regional Sales Analysis
+SELECT Region, 
+       SUM(Sales_Volume) AS Total_Sales,
+       AVG(Price_USD) AS Avg_Price,
+       ROUND(AVG(Mileage_KM), 0) AS Avg_Mileage,
+       ROUND(SUM(CASE WHEN Sales_Classification = 'High' THEN 1 ELSE 0 END)*100.0/COUNT(*), 2) AS High_Sales_Percent
+FROM sales
+GROUP BY Region
+ORDER BY Total_Sales DESC;
+
+-- 4. Fuel Type and Transmission Preference
+SELECT Fuel_Type, Transmission,
+       COUNT(*) AS Count,
+       AVG(Price_USD) AS Avg_Price,
+       ROUND(AVG(Engine_Size_L), 2) AS Avg_Engine_Size
+FROM sales
+GROUP BY Fuel_Type, Transmission
+ORDER BY Count DESC;
+
+-- 5. Price vs Mileage Correlation
+SELECT 
+    CASE 
+        WHEN Mileage_KM < 50000 THEN '0-50k'
+        WHEN Mileage_KM BETWEEN 50000 AND 100000 THEN '50k-100k'
+        ELSE '100k+' 
+    END AS Mileage_Bucket,
+    AVG(Price_USD) AS Avg_Price,
+    COUNT(*) AS Count
+FROM sales
+GROUP BY Mileage_Bucket;
