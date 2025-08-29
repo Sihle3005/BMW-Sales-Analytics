@@ -1,0 +1,55 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
+
+# Load data
+df = pd.read_csv('BMW_Car_Sales_Classification.csv')
+
+# 1. Sales Classification Distribution
+plt.figure(figsize=(10, 6))
+ax = sns.countplot(x='Sales_Classification', data=df, palette='viridis')
+plt.title('Sales Classification Distribution')
+plt.xlabel('Classification')
+plt.ylabel('Count')
+
+for p in ax.patches:
+    ax.annotate(f'{p.get_height()}', (p.get_x() + p.get_width() / 2., p.get_height()),
+                ha='center', va='center', xytext=(0, 10), textcoords='offset points')
+plt.show()
+
+# 2. Price Distribution by Region
+plt.figure(figsize=(12, 8))
+sns.boxplot(x='Region', y='Price_USD', data=df, palette='Set2')
+plt.title('Price Distribution by Region')
+plt.xticks(rotation=45)
+plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'${x:,.0f}'))
+plt.show()
+
+# 3. Fuel Type Preference
+plt.figure(figsize=(10, 6))
+fuel_trans = df.groupby(['Fuel_Type', 'Transmission']).size().unstack()
+fuel_trans.plot(kind='bar', stacked=True, colormap='coolwarm')
+plt.title('Fuel Type Preference by Transmission')
+plt.xlabel('Fuel Type')
+plt.ylabel('Count')
+plt.xticks(rotation=0)
+plt.show()
+
+# 4. Mileage vs Price Correlation
+plt.figure(figsize=(10, 6))
+sns.scatterplot(x='Mileage_KM', y='Price_USD', hue='Sales_Classification', 
+                data=df, alpha=0.7, palette='viridis')
+plt.title('Mileage vs Price Correlation')
+plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'${x:,.0f}'))
+plt.xlabel('Mileage (KM)')
+plt.show()
+
+# 5. Engine Size Impact
+plt.figure(figsize=(10, 6))
+sns.regplot(x='Engine_Size_L', y='Price_USD', data=df, 
+            scatter_kws={'alpha':0.4}, line_kws={'color':'red'})
+plt.title('Engine Size vs Price')
+plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'${x:,.0f}'))
+plt.xlabel('Engine Size (L)')
+plt.show()
